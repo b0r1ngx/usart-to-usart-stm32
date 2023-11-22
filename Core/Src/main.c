@@ -117,13 +117,10 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-//	  if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_RESET) {
-//		  for (i = 0; i < 2; i++) {
-//			  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-//			  HAL_Delay(200);
-//			  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-//		  }
-//	  } else HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	  // Ичпользуем это, вместо GPIO EXTI, надо снять GPIO в ioc!
+	  if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13) == GPIO_PIN_RESET) {
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	  } else HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
 //	  sprintf(log, "USART1.State: %s", huart1.RxState);
 //	  sprintf(log, "USART1.Count : %s", huart1.RxXferCount);
 
@@ -320,20 +317,31 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+  if (GPIO_Pin == GPIO_PIN_13) {
+	  // Работает, НО не надежно переключает!
+	  // Не вижу проблем при использовании чтения ПИНа в цикле!
+	  if (!(GPIOC -> IDR & (1 << 1))) {
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+	  } else {
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+	  }
+//	  if (EXTI_GetITStatus(GPIO_PIN_13) == SET) {
 
-//  if(GPIO_Pin== GPIO_PIN_1) {
+//	  }
+//	  }
+//	   if ((GPIOC -> IDR & GPIO_PIN_13)) {
+//		   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+//	   } else {
+//		   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+//	   }
+
+//	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+//	  if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13)) {
 //
-//    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-//
-//  } else if(GPIO_Pin== GPIO_PIN_2){
-//
-//    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
-//
-//  }
-//
-	if (GPIO_Pin== GPIO_PIN_13) {
-	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-  } // else HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+//	  } else {
+//		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+//	  }
+  }
 }
 /* USER CODE END 4 */
 
